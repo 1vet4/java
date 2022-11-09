@@ -2,29 +2,21 @@ package swingex;
 
 import java.awt.EventQueue;
 import java.sql.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+
 import javax.swing.border.EmptyBorder;
-import javax.swing.JSplitPane;
-import javax.swing.JScrollPane;
+
 import java.awt.FlowLayout;
-import javax.swing.JLabel;
 import java.awt.Color;
-import javax.swing.SwingConstants;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Cursor;
 import java.awt.Component;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
+
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.BevelBorder;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
 import javax.swing.border.MatteBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -174,49 +166,63 @@ public class UserRegistration extends JFrame {
 		submit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				userManager um=new userManager();
+				DBConnection dbCon=new DBConnection();
+				Connection con=dbCon.getDBConnection();
+				//get values from input
 				String pass=String.valueOf(password.getPassword());
-				boolean validation=um.validate(pass);
+				String us=username_2.getText();
+				String em=email.getText();
+				String passRepeat=String.valueOf(repeatPassword.getPassword());
+				String occ=occupancy.getSelectedItem().toString().toLowerCase();
+				//validate the password
 				
-				if(validation==false) {
-					System.err.println("Password is not valid");
+				boolean passwordValidation=um.validate(pass);
+				if(passwordValidation==false) {
+					
+					pass=null;
+					JOptionPane.showMessageDialog(frame, "Password does not meet the requirements.");
 				}
-				else {
-					System.out.println("password is valid");
-				}
-				String jdbcURL = "jdbc:mysql://localhost:3306/sampledb";
-				Connection con=null;
+				//check if password matches
 				
-				try
-				{
+				boolean matchPass=um.matchingPassword(pass, passRepeat);
+				if(matchPass==false) {
 					
-					
-					con = DriverManager.getConnection(jdbcURL, "root", "tima123"); 
-					if(occupancy.getSelectedItem().toString()=="Student") {
-						String us=username_2.getText();
-						String em=email.getText();
-						String sql="INSERT INTO users (username,password,email)"+"VALUES (?,?,?)";
-						PreparedStatement statement = con.prepareStatement(sql);
-						statement.setString(1, us);
-						statement.setString(2, pass);
-						statement.setString(3, em);
-						int rows=statement.executeUpdate();
-						if(rows>0) {
-							System.out.println("new user");
-						}
-							
+					passRepeat=null;
+					JOptionPane.showMessageDialog(frame, "Password does not match.");
+				}
+				
+				//check username
+				
+				boolean usernameValidation=um.checkIfUsernameAvailable(con,occ, us);
+					if(usernameValidation==false) {
+							us=null;
+							JOptionPane.showMessageDialog(frame, "Username is already taken");
 					}
+				//check email
+					
+				boolean emailValidation=um.checkIfEmailAvailable(con,occ,em);
+					if(emailValidation==false) {
+							em=null;
+							JOptionPane.showMessageDialog(frame, "User with this email already exists.");
+					}
+					if(em.indexOf('@')==-1 || !em.contains(".com")) {
+						em=null;
+						JOptionPane.showMessageDialog(frame, "Email invalid.");
+					}
+					
+				
+				//checking to which table insert data
+					     
+					
+						 
+				 um.insertData(con, occ,passRepeat, us, em);
 				     	
-				}
-				catch (SQLException ex) 
-				 {
-				     System.err.println("Cannot connect ! ");
-				     ex.printStackTrace();
-				 }
-				 
-				 finally {
-				     System.out.println("Closing the connection.");
-				     if (con != null) try { con.close(); } catch (SQLException ignore) {}
-				 }
+					 
+					     
+				//closing the connection
+					     System.out.println("Closing the connection.");
+					     if (con != null) try { con.close(); } catch (SQLException ignore) {}
+			
 			}
 		});
 		
