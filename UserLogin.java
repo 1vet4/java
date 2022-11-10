@@ -142,11 +142,22 @@ public class UserLogin extends JFrame {
 				String us=username.getText();
 				String pass=String.valueOf(password.getPassword());
 				String occ=occupancy.getSelectedItem().toString().toLowerCase();
-				secondWindow second=new secondWindow();
+				System.out.println(occ);
 				boolean validation=um.validateLogin(con,us,pass,occ);
 				if(validation==true) {
-					second.setVisible(true);
-					dispose();
+					
+					if(occ=="teacher") {
+						UserRegistration r=new UserRegistration();
+						Teacher_window tw=new Teacher_window();
+						tw.setVisible(true);
+						r.setVisible(true);
+					}
+					else if(occ=="student"){
+						Student_window sw=new Student_window();
+						sw.setVisible(true);
+					}
+					
+					
 				}
 				else {
 					JOptionPane.showMessageDialog(frame, "Invalid username or password");

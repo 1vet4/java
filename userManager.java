@@ -84,8 +84,8 @@ public class userManager {
 		return val;
 	}
 	
-	public void insertData(Connection con,String occ,String pass, String us, String em) {
-		
+	public int insertNewUser(Connection con,String occ,String pass, String us, String em) {
+		int rows=0;
 		try {
 		
 		String sql="INSERT INTO "+occ+" (username,password,email)"+"VALUES (?,?,?)";
@@ -93,7 +93,7 @@ public class userManager {
 		statement.setString(1, us);
 		statement.setString(2, pass);
 		statement.setString(3, em);
-		int rows=statement.executeUpdate();
+		rows=statement.executeUpdate();
 		if(rows>0) {
 			System.out.println("new user");
 		}
@@ -102,28 +102,75 @@ public class userManager {
 			e.printStackTrace();
 		}
 		
-		
+		return rows;
 	}
-public void insertIntoTeachers(Connection con,String pass, String us, String em) {
-		
+	public boolean insertCourse(Connection con,String name) {
+		boolean val=false;
 		try {
-		
-		String sql="INSERT INTO teachers (username,password,email)"+"VALUES (?,?,?)";
-		PreparedStatement statement = con.prepareStatement(sql);
-		statement.setString(1, us);
-		statement.setString(2, pass);
-		statement.setString(3, em);
-		int rows=statement.executeUpdate();
-		if(rows>0) {
-			System.out.println("new user");
-		}
+			
+			String sql="INSERT INTO course (name) VALUES (?)";
+			PreparedStatement statement = con.prepareStatement(sql);
+			statement.setString(1, name);
+			int rows=statement.executeUpdate();
+			if(rows>0) {
+				System.out.println("new course");
+				val=true;
+			}
+			
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		
+		return val;
 	}
+	public boolean updatePassword( Connection con, String newPass, String us,String occ) {
+		boolean val=false;
+		try {
+			
+			String sql="UPDATE "+occ+" SET password=? WHERE username=?";
+			PreparedStatement statement=con.prepareStatement(sql);
+			statement.setString(1,newPass);
+			statement.setString(2,us);
+			int rows=statement.executeUpdate();
+			if(rows>0) {
+				val=true;
+			}
+		
+		} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
+		return val;
+}
+		
+	public boolean validateLogin(Connection con, String us, String pass, String occ) {
+	boolean validation=false;
+	try {
+		
+		PreparedStatement ps=con.prepareStatement("SELECT * FROM "+occ+" WHERE username = ?"+" AND password= ?");
+		ps.setString(1,us);
+		ps.setString(2,pass);
+		ResultSet num=ps.executeQuery();
+			if(num.next()!=false) {
+				
+				validation=true;
+				
+			}
+		ps.close();
+		num.close();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	
+	
+	
+	return validation;
+}
 }
 
 	

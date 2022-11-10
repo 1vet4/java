@@ -215,8 +215,11 @@ public class UserRegistration extends JFrame {
 					     
 					
 						 
-				 um.insertData(con, occ,passRepeat, us, em);
-				     	
+				 int rows=um.insertNewUser(con, occ,passRepeat, us, em);
+				 System.out.println(rows);
+				    if(rows>0) {
+				    	dispose();
+				    }
 					 
 					     
 				//closing the connection
@@ -231,7 +234,7 @@ public class UserRegistration extends JFrame {
 		submit.setForeground(new Color(0, 51, 51));
 		submit.setFont(new Font("Sitka Heading", Font.BOLD, 19));
 		submit.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		submit.setBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+		submit.setBorder(new SoftBevelBorder(BevelBorder.RAISED, null, null, null, null));
 		submit.setBorderPainted(false);
 		submit.setBackground(new Color(204, 255, 153));
 		submit.setBounds(711, 412, 109, 31);
